@@ -145,7 +145,7 @@ def main(hashed_json,path):
                 query=formulate_query(class_names[0].split(","),True,d["lemma"])
             else:
                 query=formulate_query(class_names[i].split(","),False,d["lemma"])
-            link2query="<a href='http://epsilon-it.utu.fi/dep_search/?db=Suomi24&search={q}'>{text}</a>".format(q=query,text=class_names[i])
+            link2query="<a href='http://epsilon-it.utu.fi/dep_search_webgui/query?db=S24&search={q}'>{text}</a>".format(q=query,text=class_names[i])
             print(link2query)
             flists.append((link2query,feats))
 
