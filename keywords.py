@@ -88,13 +88,13 @@ def train_svm(data,labels):
 
 
 
-def generate_html(fname,messages=[],features=[]):
+def generate_html(fname,path,messages=[],features=[]):
     with open(fname,"wt") as f:
         template=jinja2.Environment(loader=jinja2.FileSystemLoader("./templates/")).get_template("result_tbl.html")
-        print(template.render({"messages":messages,"features":features}),file=f)
+        print(template.render({"path":path,"messages":messages,"features":features}),file=f)
 
 
-def main(hashed_json):
+def main(hashed_json,path):
     # read json to get correct settings
     with open(TMPDIR+hashed_json+".json","rt") as f:
         d=json.load(f)
@@ -105,7 +105,7 @@ def main(hashed_json):
     info.append(d["date"]+" "+d["time"].replace("-",":"))
     info.append("Keywords: "+u" & ".join(",".join(klist) for klist in d["keywords"]))
     info.append("Random:"+str(d["random"])+" Case sensitive:"+str(d["case_sensitive"])+" Lemma:"+str(d["lemma"])+" Only adjectives:"+str(d["adjective"]))
-    generate_html(fname,messages=info)
+    generate_html(fname,path,messages=info)
 
     class_names=[]
     labels=[]
@@ -120,7 +120,7 @@ def main(hashed_json):
             shuffle(data)
             random=data[:5000]
             info.append(u",".join(wordlist)+" dataset size: {r}/{a}".format(r=str(len(random)),a=str(len(data))))
-            generate_html(fname,messages=info)
+            generate_html(fname,path,messages=info)
             if data:
                 class_names.append(u",".join(wordlist))
                 dataset+=random
@@ -130,7 +130,7 @@ def main(hashed_json):
             shuffle(data)
             random=data[:5000]
             info.append(u"Contrastive dataset size: {r}/{a}".format(r=str(len(random)),a=str(len(data))))
-            generate_html(fname,messages=info)
+            generate_html(fname,path,messages=info)
             if data:
                 class_names.append("Contrastive")
                 dataset+=random
@@ -154,15 +154,16 @@ def main(hashed_json):
         flists=[]
 
     info.append("Done.")
-    generate_html(fname,messages=info,features=flists)
+    generate_html(fname,path,messages=info,features=flists)
 
 
 
 if __name__=="__main__":
     parser = argparse.ArgumentParser(description='')
     parser.add_argument('--hash', type=str, help='Hash of the jsoned settings')
+    parser.add_argument('--path', type=str, help='Path for style files')
     args = parser.parse_args()
 
-    main(args.hash)
+    main(args.hash,args.path)
 
 

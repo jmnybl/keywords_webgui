@@ -133,9 +133,10 @@ def query():
             return json.dumps({'ret':ret});
 
 
+    path=flask.url_for("static",filename="")
 
     # launch subprocess with this hash
-    a=subprocess.Popen(["python3", "keywords.py", "--hash", hashed_json], shell=False) # TODO timeout
+    a=subprocess.Popen(["python3", "keywords.py", "--hash", hashed_json, "--path", path], shell=False) # TODO timeout
 
     # add time and pid to json (these are not part of the hashed version), store json
     d["date"]=time.strftime("%d-%m-%y")
