@@ -19,7 +19,8 @@ def formulate_query(words,random,lemma):
     else:
         q="|".join(words)
     if random: # negate the query
-        q="!(_ + "+q.replace("|","&")+")"
+        #q="!(_ + "+q.replace("|","&")+")"
+        q="_ -> !("+q.replace("|","&")+")"
     print(q)
     return q
 
