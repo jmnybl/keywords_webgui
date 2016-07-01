@@ -7,6 +7,7 @@ import os.path
 import time
 import hashlib
 import psutil
+import re
 
 DEBUGMODE=False
 try:
@@ -133,7 +134,7 @@ def query():
             return json.dumps({'ret':ret});
 
 
-    path=flask.url_for("static",filename="")
+    path=re.sub("static/$","",flask.url_for("static",filename=""))
 
     # launch subprocess with this hash
     a=subprocess.Popen(["python3", "keywords.py", "--hash", hashed_json, "--path", path], shell=False) # TODO timeout
