@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+ <html lang="en">
+ 
+ <head>
+     <meta charset="utf-8">
+     <meta name="viewport" content="width=device-width, initial-scale=1">
+     <meta name="description" content="">
+     <meta name="author" content="">
+ 
+     <title>TurkuNLP dep_search</title>
+
+     <script type="text/javascript">
+       $APP_ROOT= {{request.script_root|tojson|safe }};
+     </script>
+ 
+     <!-- Bootstrap core CSS -->
+     <link href="{{ url_for('static', filename='css/bootstrap.min.css') }}" rel="stylesheet">
+     <link href="{{ url_for('static', filename='css/jquery-ui.css') }}" rel="stylesheet">
+     <link href="{{ url_for('static', filename='css/turkunlp.css') }}" rel="stylesheet">
+
+     <!-- Custom styles for this template -->
+
+     <script src="{{ url_for('static', filename='js/jquery.min.js') }}"> </script>
+     <script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"> </script>
+     <script src="{{ url_for('static', filename='js/dsearch.js') }}"> </script>
+     <script src="{{ url_for('static', filename='js/jquery-ui.js') }}"></script>
+    
+
+ </head>
+ 
+ <body>
+   <div class="container">
+     <a href="http://bionlp.utu.fi/">[Turku NLP Group]</a>
+     
+    
+    <br></br>
+    
+
+     <form class="form-inline" id="inpform" role="form">
+
+
+        <!-- Div for input box -->
+        <div class="form-group" id=inpfields>
+        
+        
+        <label>Keywords: </label> <input type="text" class="form-control autocomplete" id="keywords1" name="keywords1" placeholder="Keywords for group 1" autocorrect="off" autocapitalize="none"/><br>
+        </div><br>
+        <!-- button to add more input rows -->
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.min.js"></script>
+    <button class="btn btn-default btn-primary active" id="morerows" type="button">+</button>
+
+        <br>
+
+        <label>Calculate against random text sample:</label>
+        <div class="checkbox">
+	     <input type="checkbox" class="form-control" value="random" id="random" name="random" />
+	   </div>
+        <br> 
+
+        <!-- case and lemma boxes -->
+
+    <div class="form-group">
+	   <label>Case sensitive:</label>
+	   <div class="checkbox">
+	     <input type="checkbox" class="form-control" value="case-sensitive" id="case" name="case" />
+	   </div>
+	 </div>
+	 <div class="form-group">
+	   <label>Lemma:</label>
+        <div class="checkbox">
+	    <input type="checkbox" class="form-control" value="lemma" id="lemma" name="lemma" disabled />
+	   </div>
+	 </div>
+    <div class="form-group">
+	   <label>Only adjectives:</label>
+        <div class="checkbox">
+	    <input type="checkbox" class="form-control" value="adjective" id="adjective" name="adjective" />
+	   </div>
+	 </div>
+    <div class="form-group">
+	   <label>Rerun this experiment even if results already exist:</label>
+        <div class="checkbox">
+	    <input type="checkbox" class="form-control" value="rerun" id="rerun" name="rerun" />
+	   </div>
+	 </div>
+    <br>
+    
+     <!-- submit button -->
+	 <button id="submitquery" type="submit" class="btn btn-default btn-primary active form-control" role="button">Search</button>
+	 
+     </form>
+    <br></br>
+
+     <div id="errormsg" class="row" ></div>
+     <div id="queryresult" class="row" ></div>
+
+
+<!-- script to add more input rows -->
+<script>
+var counter = 1;
+$("#morerows").click(function(){
+    counter += 1;
+    
+    $("#inpfields").append("<label>Keywords: </label> <input type='text' class='form-control autocomplete' id='keywords" + counter + "' name='keywords" + counter + "' placeholder='Keywords for group "+counter+"' ><br>");
+
+});
+</script>
+
+
+ </body>
+ </html>

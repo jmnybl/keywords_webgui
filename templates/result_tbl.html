@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+ <html lang="en">
+ 
+ <head>
+     <meta charset="utf-8">
+     <meta name="viewport" content="width=device-width, initial-scale=1">
+     <meta name="description" content="">
+     <meta name="author" content="">
+ 
+     <title>TurkuNLP dep_search</title>
+
+    <link href="/static/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/static/css/jquery-ui.css" rel="stylesheet">
+    <link href="/static/css/turkunlp.css" rel="stylesheet">
+     
+ </head>
+ 
+ <body>
+   <div class="container">
+     <a href="http://bionlp.utu.fi/">[Turku NLP Group]</a>
+    <br></br>
+
+<div class="w2vresultblock bg-info">
+{% for msg in messages %}
+{{ msg }}</br>
+{% endfor %}
+</div>
+
+<div class="w2vresultblock bg-info">
+{% for wordlist in features %}
+<label> {{ wordlist.0|safe }} : </label></br>
+{% for word in wordlist.1 %}
+{{ word }}</br>
+{% endfor %}
+</br>
+{% endfor %}
+</div>
+
+ </body>
+ </html>
+
+
