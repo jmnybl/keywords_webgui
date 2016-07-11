@@ -154,7 +154,7 @@ def main(hashed_json,path):
         info.append("Error: "+str(e))
         flists=[]
 
-    info.append("Done.")
+    info.append("Done. This page will stay static, you can save the link to access the results also later.")
     generate_html(fname,path,messages=info,features=flists)
 
 
