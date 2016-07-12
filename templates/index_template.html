@@ -35,7 +35,7 @@
     
     <br></br>
     
-    <p>Given a space separated list of keywords (topic) this demo computes typical words occuring in the context of your keywords. You can either have one keyword group and calculate it agains a random text sample, or have two or more keyword groups and calculate agains each other. Try for example two groups: <em>Kreikka</em> and <em>Venäjä</em>, and you will get words typical in the context of Greece and words typical in the context of Russia.</p>
+    <p>Given a word (or space separated list of words) this demo computes most representative words for each keyword groups. You can either have one keyword group and calculate it agains a random text sample, or have two or more keyword groups and calculate agains each other. Try for example two groups: <em>Kreikka</em> and <em>Venäjä</em>, and you will get words highly associated with Greece and words highly associated with Russia.</p>
 
      <form class="form-inline" id="inpform" role="form">
 
@@ -106,12 +106,10 @@
 
 
     <h3>Technical details</h3>
-     <p>The demo is based on a linear support vector classifier using
+     <p>The demo is based on a support vector classifier using
      the <a href="http://scikit-learn.org/stable/index.html">scikit-learn</a>
-     python library, and the training data is pooled from the <a href="http://bionlp.utu.fi/finnish-internet-parsebank.html">Finnish
-     Internet Parsebank</a> or the <a href="https://korp.csc.fi/download/Suomi24/">Suomi24 corpus</a>. Training data consists of the sentences containing at least one of the user defined keywords, and the classifier is trained to predict which keyword group a given sentence belongs to based on the other words in the sentence. Keyword lists are then produced by picking words which give the highest positive signal for a particular group.
-    <br></br>
-    The software behind the demo is
+     python library, and the data is pooled from the <a href="http://bionlp.utu.fi/finnish-internet-parsebank.html">Finnish
+     Internet Parsebank</a> or the <a href="https://korp.csc.fi/download/Suomi24/">Suomi24 corpus</a>. The software behind the demo is
      open-source, <a href="https://github.com/jmnybl/keywords_webgui">available
      on GitHub</a>. The demo is maintained by the <a href="http://bionlp.utu.fi/">Turku BioNLP group</a>.</p>
 
