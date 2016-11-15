@@ -42,11 +42,18 @@ def parse_form():
 
     errors, warnings=[],[]
 
+    d["corpus"]=flask.request.form.get('corpus')
+
     i=1
     keywords=[]
     uniq_words=set()
     while True:
         try:
+            if d["corpus"]=="PB": # do not process these
+                words=flask.request.form["keywords"+str(i)].strip()
+                i+=1
+                keywords.append(words)
+                continue
             words=flask.request.form["keywords"+str(i)].strip().split()
             i+=1
             if len(words)>0:
@@ -59,8 +66,7 @@ def parse_form():
         except:
             break
 
-    d["corpus"]=flask.request.form.get('corpus')
-
+        
     
     d["keywords"]=keywords
 
@@ -70,6 +76,9 @@ def parse_form():
 
     d["random"]=False
     if len(d["keywords"])==1:
+        if d["corpus"]=="PB":
+            errors.append("Error: Finnish Internet Parsebank does not support 'run against random text sample' option.")
+            return d,errors,warnings
         if flask.request.form.get('random'): # use random sample only if user did not define two groups of keywords, otherwise add a warning
             d["random"]=True
         else:
@@ -155,7 +164,10 @@ def query():
     # tell the user where results will then be
     if warnings:
         warnings.append("")
-    warnings.append("Keywords: "+u" & ".join(",".join(klist) for klist in d["keywords"]))
+    if d["corpus"]=="PB":
+        warnings.append("Keywords: "+u" & ".join(klist for klist in d["keywords"]))
+    else:
+        warnings.append("Keywords: "+u" & ".join(",".join(klist) for klist in d["keywords"]))
     warnings.append("Corpus: "+d["corpus"])
     warnings.append("Random:"+str(d["random"])+" Case sensitive:"+str(d["case_sensitive"])+" Lemma:"+str(d["lemma"])+" Only adjectives:"+str(d["adjective"]))
     warnings.append("")

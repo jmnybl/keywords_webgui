@@ -7,32 +7,32 @@ import requests
 from collections import defaultdict
 import jinja2
 from random import shuffle
+import traceback
 
 TMPDIR="tmp_dir/"
 RESDIR="static/results/"
 
 
-def formulate_query(words,random,lemma):
-#    words=['"'+w+'"' for w in words] # escape special characters, not able use this if this will be dep_search queries TODO: fix dep_search lemma
-    if lemma:
-        q="|".join("L="+w for w in words)
-    else:
-        q="|".join(words)
-    if random: # negate the query
-        #q="!(_ + "+q.replace("|","&")+")"
-        q="_ -> !("+q.replace("|","&")+")"
-    print(q)
-    return q
+#def formulate_query(words,random,lemma):
+##    words=['"'+w+'"' for w in words] # escape special characters, not able use this if this will be dep_search queries TODO: fix dep_search lemma
+#    if lemma:
+#        q="|".join("L="+w for w in words)
+#    else:
+#        q="|".join(words)
+#    if random: # negate the query
+#        #q="!(_ + "+q.replace("|","&")+")"
+#        q="_ -> !("+q.replace("|","&")+")"
+#    print(q)
+#    return q
 
 
-def collect_data(words=[],stopwords=set(),random=False,case_sensitive=False,lemma=False,adjective=False,max_sent=10000):
+def collect_data(query,stopwords=set(),case_sensitive=False,lemma=False,adjective=False,max_sent=10000):
     """ If random=True, use random sentences not containing the given words
         stopwords is a set of words which should be masked (removed)    
     """
-    q=formulate_query(words,random,lemma)
     results=[]
     sent=[]
-    for hit in requests.get("http://epsilon-it.utu.fi/dep_search_webapi",params={"db":"Suomi24", "search":q, "case":case_sensitive, "retmax":max_sent, "shuffle":True},stream=True).iter_lines():
+    for hit in requests.get("http://epsilon-it.utu.fi/dep_search_webapi",params={"db":"PBV4", "search":query, "case":case_sensitive, "retmax":max_sent, "shuffle":True},stream=True).iter_lines():
         # hit is a line
         hit=hit.decode("utf-8").strip()
         if not hit: # sentence break
@@ -58,6 +58,60 @@ def collect_data(words=[],stopwords=set(),random=False,case_sensitive=False,lemm
             results.append(" ".join(sent))
 
     return results
+
+def collect_data_korp(words=[],stopwords=set(),corpus="S24",random=False,case_sensitive=False,lemma=False,adjective=False,max_sent=10000):
+    """ If random=True, use random sentences not containing the given words
+        stopwords is a set of words which should be masked (removed)    
+    """
+
+    if lemma:
+        form="lemma"
+    else:
+        form="word"
+    if case_sensitive:
+        case=""
+    else:
+        case="(?i)"
+    if random:
+        neg="!"
+    else:
+        neg=""
+    expressions=[]
+    for word in words:
+        expressions.append('[{N}({F} = "{C}{W}")]'.format(N=neg,F=form,C=case,W=word)) # '([word = "(?i)kreikka"]|[word = "(?i)kreikkalainen"])'
+
+    cqp_query="|".join(e for e in expressions) 
+
+    extra='&defaultcontext=1+sentence&defaultwithin=sentence&show=sentence,paragraph,lemma,pos&show_struct=sentence_id&start=0&end={M}'.format(M=max_sent)
+
+    url="https://korp.csc.fi/cgi-bin/korp.cgi?command={command}{extra_param}&corpus={C}&cqp={cqp}".format(command="query",extra_param=extra,C=corpus,cqp=cqp_query)
+
+    hits=requests.get(url)
+
+    data=hits.json()
+   # print(data["kwic"][0]['tokens'])
+    sent_ids=set()
+
+    if "kwic" not in data:
+        #print("No results...")
+        return []
+    results=[]
+    for sent in data["kwic"]:
+        idx=sent["structs"]["sentence_id"]
+        if idx in sent_ids:
+            continue
+        sent_ids.add(idx)
+    #    print(sent)
+        sentence=[]
+        for token in sent['tokens']:
+            if (token["word"] is not None) and (form in token) and (token[form].lower() not in stopwords):
+                if adjective and token[pos]!="A":
+                    continue
+                sentence.append(token[form].lower())
+        if sentence:
+            results.append(" ".join(sentence))
+    return results
+
 
 def simple_tokenizer(txt):
     """ Simple tokenizer, default one splits hyphens and other weirdish stuff. """
@@ -104,7 +158,11 @@ def main(hashed_json,path):
     info=[]
     info.append("Running, update the page occasionally to see the results.")
     info.append(d["date"]+" "+d["time"].replace("-",":"))
-    info.append("Keywords: "+u" & ".join(",".join(klist) for klist in d["keywords"]))
+    if d["corpus"]=="PB":
+        info.append("Keywords: "+u" & ".join(q for q in d["keywords"]))
+        print(d["keywords"])
+    else:
+        info.append("Keywords: "+u" & ".join(",".join(klist) for klist in d["keywords"]))
     info.append("Random:"+str(d["random"])+" Case sensitive:"+str(d["case_sensitive"])+" Lemma:"+str(d["lemma"])+" Only adjectives:"+str(d["adjective"]))
     generate_html(fname,path,messages=info)
 
@@ -112,12 +170,18 @@ def main(hashed_json,path):
     labels=[]
     dataset=[]
 
-    uniq_words=set([w.lower() for sublist in d["keywords"] for w in sublist]) # set of unique words to use in masking
+    if d["corpus"]!="PB":
+        uniq_words=set([w.lower() for sublist in d["keywords"] for w in sublist]) # set of unique words to use in masking
+    else:
+        uniq_words=set()
     
     try:
         # collect data
-        for wordlist in d["keywords"]:        
-            data=collect_data(words=wordlist,stopwords=uniq_words,random=False,case_sensitive=d["case_sensitive"],lemma=d["lemma"],adjective=d["adjective"])
+        for wordlist in d["keywords"]:
+            if d["corpus"]=="PB":        
+                data=collect_data(wordlist,stopwords=uniq_words,case_sensitive=d["case_sensitive"],lemma=d["lemma"],adjective=d["adjective"])
+            else:
+                data=collect_data_korp(words=wordlist,stopwords=uniq_words,corpus=d["corpus"],random=False,case_sensitive=d["case_sensitive"],lemma=d["lemma"],adjective=d["adjective"])
             shuffle(data)
             random=data[:5000]
             info.append(u",".join(wordlist)+" dataset size: {r}/{a}".format(r=str(len(random)),a=str(len(data))))
@@ -127,7 +191,7 @@ def main(hashed_json,path):
                 dataset+=random
                 labels+=[len(class_names)-1]*len(random)
         if len(class_names)==1 and d["random"]==True:
-            data=collect_data(words=d["keywords"][0],stopwords=uniq_words,random=True,case_sensitive=d["case_sensitive"],lemma=d["lemma"],adjective=d["adjective"])
+            data=collect_data_korp(words=d["keywords"][0],stopwords=uniq_words,corpus=d["corpus"],random=True,case_sensitive=d["case_sensitive"],lemma=d["lemma"],adjective=d["adjective"])
             shuffle(data)
             random=data[:5000]
             info.append(u"Contrastive dataset size: {r}/{a}".format(r=str(len(random)),a=str(len(data))))
@@ -141,16 +205,19 @@ def main(hashed_json,path):
         features=train_svm(dataset,labels)
         flists=[]
         for i,feats in enumerate(features):
-            if class_names[i]=="Contrastive":
-                query=formulate_query(class_names[0].split(","),True,d["lemma"])
-            else:
-                query=formulate_query(class_names[i].split(","),False,d["lemma"])
-            link2query="<a href='http://epsilon-it.utu.fi/dep_search_webgui/query?db=S24&search={q}'>{text}</a>".format(q=query,text=class_names[i])
+#            if class_names[i]=="Contrastive":
+#                query=formulate_query(class_names[0].split(","),True,d["lemma"])
+#            else:
+#                query=formulate_query(class_names[i].split(","),False,d["lemma"])
+#            link2query="<a href='http://epsilon-it.utu.fi/dep_search_webgui/query?db=S24&search={q}'>{text}</a>".format(q=query,text=class_names[i])
+            link2query=class_names[i]
             print(link2query)
             flists.append((link2query,feats))
 
     except Exception as e:
+
         print(e)
+        traceback.print_exc()
         info.append("Error: "+str(e))
         flists=[]
 
