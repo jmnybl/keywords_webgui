@@ -59,6 +59,8 @@ def parse_form():
         except:
             break
 
+    d["corpus"]=flask.request.form.get('corpus')
+
     
     d["keywords"]=keywords
 
@@ -154,6 +156,7 @@ def query():
     if warnings:
         warnings.append("")
     warnings.append("Keywords: "+u" & ".join(",".join(klist) for klist in d["keywords"]))
+    warnings.append("Corpus: "+d["corpus"])
     warnings.append("Random:"+str(d["random"])+" Case sensitive:"+str(d["case_sensitive"])+" Lemma:"+str(d["lemma"])+" Only adjectives:"+str(d["adjective"]))
     warnings.append("")
     warnings.append("Job launched {date} {time}.".format(date=d["date"],time=d["time"].replace("-",":")))

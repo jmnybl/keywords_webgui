@@ -13,7 +13,7 @@ RESDIR="static/results/"
 
 
 def formulate_query(words,random,lemma):
-    words=['"'+w+'"' for w in words] # escape special characters, not able use this if this will be dep_search queries
+#    words=['"'+w+'"' for w in words] # escape special characters, not able use this if this will be dep_search queries TODO: fix dep_search lemma
     if lemma:
         q="|".join("L="+w for w in words)
     else:
