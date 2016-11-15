@@ -127,11 +127,11 @@ def query():
             with open(TMPDIR+hashed_json+".json","rt") as f:
                 d=json.load(f)
             resurl=flask.url_for("static",filename="results/"+hashed_json+d["date"]+d["time"]+".html")
-            warnings.append('Results for this experiment already exist <a href="{url}">here</a>. If you anyway want to run the experiment again, use rerun option.'.format(url=resurl))
+            warnings.append('Results for this experiment already exist <a href="{url}">here</a>. If you want to force re-run of the experiment, select the rerun option above.'.format(url=resurl))
             if flask.request.form.get('rerun'):
-                warnings.append("Not possible to rerun while the same experiment is still running on the background.")
-            warnings.append("")
-            warnings.append("Job not submitted.")
+                warnings.append("It is not possible to force rerun before the previous run of the same experiment has finished. Please try again later.")
+                warnings.append("")
+                warnings.append("Job not submitted.")
             ret=flask.render_template("err_tbl.html",messages=warnings)
             return json.dumps({'ret':ret});
 

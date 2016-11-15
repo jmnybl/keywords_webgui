@@ -102,10 +102,10 @@ def main(hashed_json,path):
 
     fname=u"".join((RESDIR,hashed_json,d["date"],d["time"],".html"))
     info=[]
-    info.append("Running, update the page occasionally to see the results.")
+    info.append("The experiment is currently running. Reload the page occasionally to see if the results are ready.")
     info.append(d["date"]+" "+d["time"].replace("-",":"))
-    info.append("Keywords: "+u" & ".join(",".join(klist) for klist in d["keywords"]))
-    info.append("Random:"+str(d["random"])+" Case sensitive:"+str(d["case_sensitive"])+" Lemma:"+str(d["lemma"])+" Only adjectives:"+str(d["adjective"]))
+    info.append("Keywords: "+u"   &   ".join(",".join(klist) for klist in d["keywords"]))
+    info.append("Random:"+str(d["random"])+"    Case sensitive:"+str(d["case_sensitive"])+"    Lemma:"+str(d["lemma"])+"    Only adjectives:"+str(d["adjective"]))
     generate_html(fname,path,messages=info)
 
     class_names=[]
