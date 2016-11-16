@@ -20,7 +20,15 @@
      <a href="http://bionlp.utu.fi/">[Turku NLP Group]</a> <a href="{{ path }}">[back to the search page]</a>
     <br></br>
 
-<div class="w2vresultblock bg-info">
+
+    {% if ready %}
+    {% else %}
+    <div class="w2vresultblock bg-info">
+      The experiment is still running. Reload this page occassionally until the results appear.
+    </div>
+    {% endif %}
+
+    <div class="w2vresultblock bg-info">
 {% for msg in messages %}
 {{ msg|e }}</br>
 {% endfor %}
@@ -28,11 +36,16 @@
 
 <div class="w2vresultblock bg-info">
 {% for wordlist in features %}
-<label> {{ wordlist.0|e }} : </label><br/>
+
 <table class="table">
-{% for word,weight in wordlist.1 %}
-<tr><td>{{ word }}</td><td>{{ weight }}</td></tr>
-{% endfor %}
+  <thead>
+    <tr><th>{{ wordlist.0|e }}</th><th/></tr>
+  </thead>
+  <tbody>
+    {% for word,weight in wordlist.1 %}
+    <tr><td>{{ word }}</td><td>{{ weight }}</td></tr>
+    {% endfor %}
+  </tbody>
 </table>
 {% endfor %}
 </div>

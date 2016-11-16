@@ -147,10 +147,10 @@ def train_svm(data,labels):
 
 
 
-def generate_html(fname,path,messages=[],features=[]):
+def generate_html(fname,path,messages=[],features=[],ready=False):
     with open(fname,"wt") as f:
         template=jinja2.Environment(loader=jinja2.FileSystemLoader("./templates/")).get_template("result_tbl.html")
-        print(template.render({"path":path,"messages":messages,"features":features}),file=f)
+        print(template.render({"path":path,"messages":messages,"features":features,"ready":ready}),file=f)
 
 
 def main(hashed_json,path):
@@ -160,7 +160,6 @@ def main(hashed_json,path):
 
     fname=u"".join((RESDIR,hashed_json,d["date"],d["time"],".html"))
     info=[]
-    info.append("The experiment is currently running. Reload the page occasionally to see if the results are ready.")
     info.append(d["date"]+" "+d["time"].replace("-",":"))
     if d["corpus"]=="PB":
         info.append("Keywords: "+str(d["keywords"]))
@@ -232,7 +231,7 @@ def main(hashed_json,path):
         flists=[]
 
     info.append("Done. This page will stay static, you can save the link to access the results also later.")
-    generate_html(fname,path,messages=info,features=flists)
+    generate_html(fname,path,messages=info,features=flists,ready=True)
 
 
 
