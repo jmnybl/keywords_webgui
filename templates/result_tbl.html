@@ -16,7 +16,7 @@
  </head>
  
  <body>
-   <div class="container">
+   <div class="container-fluid">
      <a href="http://bionlp.utu.fi/">[Turku NLP Group]</a> <a href="{{ path }}">[back to the search page]</a>
     <br></br>
 
@@ -29,26 +29,31 @@
     {% endif %}
 
     <div class="w2vresultblock bg-info">
-{% for msg in messages %}
-{{ msg|e }}</br>
-{% endfor %}
-</div>
+      {% for msg in messages %}
+      {{ msg|e }}</br>
+      {% endfor %}
+    </div>
 
-<div class="w2vresultblock bg-info">
-{% for wordlist in features %}
+    <div class="container-fluid w2vresultblock bg-info">
+      <div class="row">
+	{% for wordlist in features %}
+	<div class="col-sm-{{fcol}}">
+	  <table class="table">
+	    <thead>
+	      <tr><th>{{ wordlist.0|e }}</th><th/></tr>
+	    </thead>
+	    <tbody>
+	      {% for word,weight in wordlist.1 %}
+	      <tr><td>{{ word }}</td><td>{{ weight }}</td></tr>
+	      {% endfor %}
+	    </tbody>
+	  </table>
+	</div>
+	{% endfor %}
+	<div class="col-sm-{{emptydiv}}" />
+      </div>
 
-<table class="table">
-  <thead>
-    <tr><th>{{ wordlist.0|e }}</th><th/></tr>
-  </thead>
-  <tbody>
-    {% for word,weight in wordlist.1 %}
-    <tr><td>{{ word }}</td><td>{{ weight }}</td></tr>
-    {% endfor %}
-  </tbody>
-</table>
-{% endfor %}
-</div>
+    </div>
 
  </body>
  </html>
