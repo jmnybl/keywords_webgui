@@ -55,6 +55,7 @@ def parse_form():
                 keywords.append(words)
                 continue
             words=flask.request.form["keywords"+str(i)].strip().split()
+            words=[w.replace(":","\:").replace(")","\)").replace("(","\(").replace("|","\|") for w in words]
             i+=1
             if len(words)>0:
                 for w in set(words):
@@ -165,7 +166,7 @@ def query():
     if warnings:
         warnings.append("")
     if d["corpus"]=="PB":
-        warnings.append("Keywords: "+u" & ".join(klist for klist in d["keywords"]))
+        warnings.append("Keywords: "+str(d["keywords"]))
     else:
         warnings.append("Keywords: "+u" & ".join(",".join(klist) for klist in d["keywords"]))
     warnings.append("Corpus: "+d["corpus"])

@@ -105,7 +105,7 @@ def collect_data_korp(words=[],stopwords=set(),corpus="S24",random=False,case_se
         sentence=[]
         for token in sent['tokens']:
             if (token["word"] is not None) and (form in token) and (token[form].lower() not in stopwords):
-                if adjective and token[pos]!="A":
+                if adjective and (("pos" not in token) or (token["pos"]!="A")):
                     continue
                 sentence.append(token[form].lower())
         if sentence:
@@ -159,7 +159,7 @@ def main(hashed_json,path):
     info.append("The experiment is currently running. Reload the page occasionally to see if the results are ready.")
     info.append(d["date"]+" "+d["time"].replace("-",":"))
     if d["corpus"]=="PB":
-        info.append("Keywords: "+u"   &   ".join(q for q in d["keywords"]))
+        info.append("Keywords: "+str(d["keywords"]))
         print(d["keywords"])
     else:
         info.append("Keywords: "+u"   &   ".join(",".join(klist) for klist in d["keywords"]))
@@ -184,7 +184,10 @@ def main(hashed_json,path):
                 data=collect_data_korp(words=wordlist,stopwords=uniq_words,corpus=d["corpus"],random=False,case_sensitive=d["case_sensitive"],lemma=d["lemma"],adjective=d["adjective"])
             shuffle(data)
             random=data[:5000]
-            info.append(u",".join(wordlist)+" dataset size: {r}/{a}".format(r=str(len(random)),a=str(len(data))))
+            if d["corpus"]=="PB":
+                info.append(wordlist+" dataset size: {r}/{a}".format(r=str(len(random)),a=str(len(data))))   
+            else: 
+                info.append(u",".join(wordlist)+" dataset size: {r}/{a}".format(r=str(len(random)),a=str(len(data))))
             generate_html(fname,path,messages=info)
             if data:
                 class_names.append(u",".join(wordlist))
