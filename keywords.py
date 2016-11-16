@@ -1,3 +1,4 @@
+import sys
 import json
 import conllutil3 as cu
 import sklearn.feature_extraction
@@ -32,9 +33,12 @@ def collect_data(query,stopwords=set(),case_sensitive=False,lemma=False,adjectiv
     """
     results=[]
     sent=[]
-    for hit in requests.get("http://epsilon-it.utu.fi/dep_search_webapi",params={"db":"PBV4", "search":query, "case":case_sensitive, "retmax":max_sent, "shuffle":True},stream=True).iter_lines():
+    r=requests.get("http://epsilon-it.utu.fi/dep_search_webapi",params={"db":"PBV4", "search":query, "case":case_sensitive, "retmax":max_sent, "shuffle":True},stream=True)
+    #print("Getting",r.url,file=sys.stderr)
+    for hit in r.iter_lines():
         # hit is a line
         hit=hit.decode("utf-8").strip()
+        #print("HIT:::",hit,file=sys.stderr)
         if not hit: # sentence break
             if sent:
                 results.append(" ".join(sent))
@@ -132,12 +136,12 @@ def train_svm(data,labels):
         sorted_by_weight=sorted(zip(class_vector,f_names), reverse=True)
         features.append([])
         for f_weight,f_name in sorted_by_weight[:50]:
-            features[-1].append(" ".join((f_name, str(f_weight))))
+            features[-1].append((f_name,"{:.3}".format(f_weight)))
     if len(classifier.coef_)==1: # use negative features
         sorted_by_weight=sorted(zip(classifier.coef_[0],f_names))
         features.insert(0,[]) # these are features for first class
         for f_weight,f_name in sorted_by_weight[:50]:
-            features[0].append(" ".join((f_name, str(f_weight*-1))))
+            features[0].append((f_name,"{:.3}".format(f_weight*-1)))
 
     return features
 
@@ -190,7 +194,10 @@ def main(hashed_json,path):
                 info.append(u",".join(wordlist)+" dataset size: {r}/{a}".format(r=str(len(random)),a=str(len(data))))
             generate_html(fname,path,messages=info)
             if data:
-                class_names.append(u",".join(wordlist))
+                if isinstance(wordlist,list):
+                    class_names.append(u",".join(wordlist))
+                else:
+                    class_names.append(wordlist)
                 dataset+=random
                 labels+=[len(class_names)-1]*len(random)
         if len(class_names)==1 and d["random"]==True:

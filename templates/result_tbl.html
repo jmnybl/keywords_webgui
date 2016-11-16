@@ -22,17 +22,18 @@
 
 <div class="w2vresultblock bg-info">
 {% for msg in messages %}
-{{ msg }}</br>
+{{ msg|e }}</br>
 {% endfor %}
 </div>
 
 <div class="w2vresultblock bg-info">
 {% for wordlist in features %}
-<label> {{ wordlist.0|safe }} : </label></br>
-{% for word in wordlist.1 %}
-{{ word }}</br>
+<label> {{ wordlist.0|e }} : </label><br/>
+<table class="table">
+{% for word,weight in wordlist.1 %}
+<tr><td>{{ word }}</td><td>{{ weight }}</td></tr>
 {% endfor %}
-</br>
+</table>
 {% endfor %}
 </div>
 
