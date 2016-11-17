@@ -55,7 +55,7 @@ def parse_form():
                 keywords.append(words)
                 continue
             words=flask.request.form["keywords"+str(i)].strip().split()
-            words=[w.replace(":","\:").replace(")","\)").replace("(","\(").replace("|","\|") for w in words]
+            #words=[w.replace(":","\:").replace(")","\)").replace("(","\(").replace("|","\|") for w in words]
             i+=1
             if len(words)>0:
                 for w in set(words):

@@ -68,6 +68,7 @@ def collect_data_korp(words=[],stopwords=set(),corpus="S24",random=False,case_se
         stopwords is a set of words which should be masked (removed)    
     """
 
+
     if lemma:
         form="lemma"
     else:
@@ -82,6 +83,7 @@ def collect_data_korp(words=[],stopwords=set(),corpus="S24",random=False,case_se
         neg=""
     expressions=[]
     for word in words:
+        word=word.replace(":","\:").replace(")","\)").replace("(","\(").replace("|","\|")
         expressions.append('[{N}({F} = "{C}{W}")]'.format(N=neg,F=form,C=case,W=word)) # '([word = "(?i)kreikka"]|[word = "(?i)kreikkalainen"])'
 
     cqp_query="|".join(e for e in expressions) 
