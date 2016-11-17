@@ -63,7 +63,7 @@ def collect_data(query,stopwords=set(),case_sensitive=False,lemma=False,adjectiv
 
     return results
 
-def collect_data_korp(words=[],stopwords=set(),corpus="S24",random=False,case_sensitive=False,lemma=False,adjective=False,max_sent=10000):
+def collect_data_korp(words=[],stopwords=set(),corpus="s24_001,s24_002,s24_003,s24_004,s24_005,s24_006,s24_007,s24_008,s24_009,s24_010",random=False,case_sensitive=False,lemma=False,adjective=False,max_sent=10000):
     """ If random=True, use random sentences not containing the given words
         stopwords is a set of words which should be masked (removed)    
     """
@@ -90,6 +90,8 @@ def collect_data_korp(words=[],stopwords=set(),corpus="S24",random=False,case_se
 
     url="https://korp.csc.fi/cgi-bin/korp.cgi?command={command}{extra_param}&corpus={C}&cqp={cqp}".format(command="query",extra_param=extra,C=corpus,cqp=cqp_query)
 
+    #print("Getting url:",url,file=sys.stderr)
+    
     hits=requests.get(url)
 
     data=hits.json()
@@ -162,6 +164,8 @@ def generate_html(fname,path,messages=[],features=[],ready=False):
         print(template.render({"path":path,"messages":messages,"features":features,"ready":ready,"fcol":fcol,"emptydiv":emptydiv}),file=f)
 
 
+
+korpdef={"PB":"PB","S24":"s24_001,s24_002,s24_003,s24_004,s24_005,s24_006,s24_007,s24_008,s24_009,s24_010"}
 def main(hashed_json,path):
     # read json to get correct settings
     with open(TMPDIR+hashed_json+".json","rt") as f:
@@ -193,7 +197,7 @@ def main(hashed_json,path):
             if d["corpus"]=="PB":        
                 data=collect_data(wordlist,stopwords=uniq_words,case_sensitive=d["case_sensitive"],lemma=d["lemma"],adjective=d["adjective"])
             else:
-                data=collect_data_korp(words=wordlist,stopwords=uniq_words,corpus=d["corpus"],random=False,case_sensitive=d["case_sensitive"],lemma=d["lemma"],adjective=d["adjective"])
+                data=collect_data_korp(words=wordlist,stopwords=uniq_words,corpus=korpdef[d["corpus"]],random=False,case_sensitive=d["case_sensitive"],lemma=d["lemma"],adjective=d["adjective"])
             shuffle(data)
             random=data[:5000]
             if d["corpus"]=="PB":
@@ -209,7 +213,7 @@ def main(hashed_json,path):
                 dataset+=random
                 labels+=[len(class_names)-1]*len(random)
         if len(class_names)==1 and d["random"]==True:
-            data=collect_data_korp(words=d["keywords"][0],stopwords=uniq_words,corpus=d["corpus"],random=True,case_sensitive=d["case_sensitive"],lemma=d["lemma"],adjective=d["adjective"])
+            data=collect_data_korp(words=d["keywords"][0],stopwords=uniq_words,corpus=korpdef[d["corpus"]],random=True,case_sensitive=d["case_sensitive"],lemma=d["lemma"],adjective=d["adjective"])
             shuffle(data)
             random=data[:5000]
             info.append(u"Contrastive dataset size: {r}/{a}".format(r=str(len(random)),a=str(len(data))))
