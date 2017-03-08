@@ -161,9 +161,10 @@ def generate_html(fname,path,messages=[],features=[],ready=False):
     else:
         fcol=1
         emptydiv=0
-    with open(fname,"wt") as f:
+    with open(fname,"wt",encoding="utf-8") as f:
         template=jinja2.Environment(loader=jinja2.FileSystemLoader("./templates/")).get_template("result_tbl.html")
-        print(template.render({"path":path,"messages":messages,"features":features,"ready":ready,"fcol":fcol,"emptydiv":emptydiv}),file=f)
+        rendered=template.render({"path":path,"messages":messages,"features":features,"ready":ready,"fcol":fcol,"emptydiv":emptydiv})
+        print(rendered,file=f)
 
 
 
